@@ -1,0 +1,16 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  gap: 20px;
+  height: max-content;
+}
+
+.form-entry {
+  margin: 20px 0px !important;
+}
+
+p{
+    color: red;
+}
