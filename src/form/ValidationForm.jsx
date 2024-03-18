@@ -10,10 +10,11 @@ const ValidationForm = () => {
     handleSubmit,
     setError,
     watch,
+    trigger,
   } = form;
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const contactRegex = /(?=.*[0-9]).{11,}/;
+  const contactRegex = /^\d{11}$/;
   const passRegex =
     /^(?!.*\s)(?=.*[!@#$%^&*()_+{}|:"<>?`~\-=[\];',./])(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}$/;
 
@@ -28,7 +29,6 @@ const ValidationForm = () => {
 
   const validatePass = (value) => {
     if (!passRegex.test(value)) {
-      console.log("this being triggered");
       setError("password", {
         type: "manual",
         message:
@@ -43,13 +43,13 @@ const ValidationForm = () => {
   const validateRepPass = (value) => {
     let mainPass = watch("password");
     if (value !== mainPass) {
-      setError("repPass", {
+      setError("repPassword", {
         type: "manual",
         message: "Passwords do not match",
       });
       return false;
     }
-    setError("repPass", null);
+    setError("repPassword", null);
     return true;
   };
 
@@ -59,10 +59,11 @@ const ValidationForm = () => {
   };
 
   const validateContact = (value) => {
+    console.log("contact validation being triggered");
     if (!contactRegex.test(value)) {
       setError("contact", {
         type: "manual",
-        message: "invalid contact",
+        message: "Please enter a valid 11-digit Contact Number.",
       });
       return false;
     }
@@ -116,6 +117,7 @@ const ValidationForm = () => {
           validate: (value) => validatePass(value),
         })}
         label="Password"
+        type="password"
         variant="standard"
         onBlur={printErrors}
       />
@@ -125,20 +127,24 @@ const ValidationForm = () => {
       <TextField
         {...register("repPassword", {
           required: "Please confirm your password",
-          validate: (value) => validateRepPass(value),
+          validate: (value) => {
+            return validateRepPass(value);
+          },
         })}
         label="Repeat Password"
+        type="password"
         variant="standard"
-        onBlur={printErrors}
+        onBlur={() => {
+          trigger("repPassword");
+          printErrors();
+        }}
       />
-      {errors.repPassword && <p>{errors.repPassword.message}</p>}
+      {errors.repPassword && <p>{errors.repPassword?.message}</p>}
       //contact
       <br />
       <TextField
         {...register("contact", {
           required: "Please enter an 11-digit phone number",
-          minLength: 11,
-          maxLength: 11,
           validate: (value) => validateContact(value),
         })}
         label="Contact"
@@ -159,12 +165,13 @@ const ValidationForm = () => {
         })}
         label="Enter your Email"
         variant="standard"
-        onBlur={printErrors}
+        onBlur={() => {
+          trigger("emails");
+          printErrors();
+        }}
       />
       {errors.emails && <p>{errors.emails.message}</p>}
-      <Button
-        // disabled={!isValid}
-        onClick={handleSubmit(formSubmit)}>
+      <Button disabled={!isValid} onClick={handleSubmit(formSubmit)}>
         Submit form
       </Button>
     </form>
