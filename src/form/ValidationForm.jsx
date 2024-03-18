@@ -1,6 +1,8 @@
 import { Button, TextField } from "@mui/material";
 import { useForm } from "react-hook-form";
 import "./ValidationForm.css";
+import { useState } from "react";
+import Alert from "@mui/material/Alert";
 
 const ValidationForm = () => {
   const form = useForm();
@@ -12,6 +14,12 @@ const ValidationForm = () => {
     watch,
     trigger,
   } = form;
+  const [subAlert, setSubAlert] = useState(false);
+  const [alertText, setAlertText] = useState("");
+
+  const handleCloseAlert = () => {
+    setSubAlert(false);
+  };
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const contactRegex = /^\d{11}$/;
@@ -19,8 +27,17 @@ const ValidationForm = () => {
     /^(?!.*\s)(?=.*[!@#$%^&*()_+{}|:"<>?`~\-=[\];',./])(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}$/;
 
   const formSubmit = (data) => {
-    console.log("Form submitted, data >>> ");
-    console.log(data);
+    let formattedEmails = data.emails.split(",");
+    formattedEmails = formattedEmails.map((email) => email.trim());
+    const submittedData = `Name: ${data.name}\nPassword: ${
+      data.password
+    }\nPassword Confirmation: ${data.repPassword}\n Contact: ${
+      data.contact
+    }\n Emails:\n       ${
+      formattedEmails ? formattedEmails.join("\n       ") : ""
+    }  `;
+    setAlertText(submittedData);
+    setSubAlert(true)
   };
 
   const validateName = (value) => {
@@ -53,13 +70,7 @@ const ValidationForm = () => {
     return true;
   };
 
-  const printErrors = () => {
-    console.log("errors >>> ");
-    console.log(errors);
-  };
-
   const validateContact = (value) => {
-    console.log("contact validation being triggered");
     if (!contactRegex.test(value)) {
       setError("contact", {
         type: "manual",
@@ -95,86 +106,97 @@ const ValidationForm = () => {
   };
 
   return (
-    <form className="form">
-      //name
-      <br />
-      <TextField
-        placeholder="John Doe"
-        {...register("name", {
-          required: "Name can not be empty",
-          validate: (value) => validateName(value),
-        })}
-        label="Full Name"
-        variant="standard"
-        onBlur={printErrors}
-      />
-      {errors.name && <p>{errors.name.message}</p>}
-      //password
-      <br />
-      <TextField
-        {...register("password", {
-          required: "Password can not be empty",
-          validate: (value) => validatePass(value),
-        })}
-        label="Password"
-        type="password"
-        variant="standard"
-        onBlur={printErrors}
-      />
-      {errors.password && <p>{errors.password.message}</p>}
-      //confirm password
-      <br />
-      <TextField
-        {...register("repPassword", {
-          required: "Please confirm your password",
-          validate: (value) => {
-            return validateRepPass(value);
-          },
-        })}
-        label="Repeat Password"
-        type="password"
-        variant="standard"
-        onBlur={() => {
-          trigger("repPassword");
-          printErrors();
-        }}
-      />
-      {errors.repPassword && <p>{errors.repPassword?.message}</p>}
-      //contact
-      <br />
-      <TextField
-        {...register("contact", {
-          required: "Please enter an 11-digit phone number",
-          validate: (value) => validateContact(value),
-        })}
-        label="Contact"
-        variant="standard"
-        onBlur={printErrors}
-      />
-      {errors.contact && <p>{errors.contact.message}</p>}
-      //emails
-      <br />
-      <TextField
-        className="textfield"
-        placeholder="example@email.com (separate multiple emails with ',')"
-        {...register("emails", {
-          required: false,
-          validate: (value) => {
-            validateEmails(value);
-          },
-        })}
-        label="Enter your Email"
-        variant="standard"
-        onBlur={() => {
-          trigger("emails");
-          printErrors();
-        }}
-      />
-      {errors.emails && <p>{errors.emails.message}</p>}
-      <Button disabled={!isValid} onClick={handleSubmit(formSubmit)}>
-        Submit form
-      </Button>
-    </form>
+    <div className="form-wrapper">
+      <form className="form">
+        <br />
+        <TextField
+          placeholder="John Doe"
+          {...register("name", {
+            required: "Name can not be empty",
+            validate: (value) => validateName(value),
+          })}
+          label="Full Name"
+          variant="standard"
+          onBlur={() => {
+            trigger("name");
+          }}
+        />
+        {errors.name && <p>{errors.name.message}</p>}
+        <br />
+        <TextField
+          {...register("password", {
+            required: "Password can not be empty",
+            validate: (value) => {
+              return validatePass(value);
+            },
+          })}
+          label="Password"
+          type="password"
+          variant="standard"
+          onBlur={() => {
+            trigger("password");
+          }}
+        />
+        {errors.password && <p>{errors.password.message}</p>}
+        <br />
+        <TextField
+          {...register("repPassword", {
+            required: "Please confirm your password",
+            validate: (value) => {
+              return validateRepPass(value);
+            },
+          })}
+          label="Repeat Password"
+          type="password"
+          variant="standard"
+          onBlur={() => {
+            trigger("repPassword");
+          }}
+        />
+        {errors.repPassword && <p>{errors.repPassword?.message}</p>}
+        <br />
+        <TextField
+          {...register("contact", {
+            required: "Please enter an 11-digit phone number",
+            validate: (value) => validateContact(value),
+          })}
+          label="Contact"
+          variant="standard"
+          onBlur={() => {
+            trigger("contact");
+          }}
+        />
+        {errors.contact && <p>{errors.contact.message}</p>}
+        <br />
+        <TextField
+          className="textfield"
+          placeholder="example@email.com (separate multiple emails with ',')"
+          {...register("emails", {
+            required: false,
+            validate: (value) => {
+              validateEmails(value);
+            },
+          })}
+          label="Enter your Email"
+          variant="standard"
+          onBlur={() => {
+            trigger("emails");
+          }}
+        />
+        {errors.emails && <p>{errors.emails.message}</p>}
+        <Button disabled={!isValid} onClick={handleSubmit(formSubmit)}>
+          Submit form
+        </Button>
+
+        {subAlert && (
+          <Alert severity="success" onClose={handleCloseAlert}>
+            <strong>Submitted Data:</strong>
+            <br />
+            {alertText}
+          </Alert>
+        )}
+      </form>
+    </div>
   );
 };
 

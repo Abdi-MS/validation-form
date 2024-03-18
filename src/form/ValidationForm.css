@@ -1,3 +1,15 @@
+/* * {
+  border: 1px solid black;
+} */
+
+.form-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 50px;
+}
+
 .form {
   display: flex;
   flex-direction: column;
@@ -5,12 +17,17 @@
   align-items: center;
   gap: 20px;
   height: max-content;
+  width: 35%;
+}
+
+.form>* {
+  width: 100%;
 }
 
 .form-entry {
   margin: 20px 0px !important;
 }
 
-p{
-    color: red;
+p {
+  color: red;
 }
